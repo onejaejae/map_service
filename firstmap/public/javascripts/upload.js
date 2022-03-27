@@ -5,12 +5,28 @@ const searchPlaces = () => {
   ps.keywordSearch(keyword, placeSearchCB);
 };
 
+const onSubmit = (title, address, lat, lng) => {
+  $.ajax({
+    url: "/location",
+    data: { title, address, lat, lng },
+    type: "POST",
+  })
+    .done((response) => {
+      console.log("데이터 요청 성공.");
+      alert("성공");
+    })
+    .fail((error) => {
+      console.log("데이터 요청 실패");
+      alert("실패");
+    });
+};
+
 const displayInfowindow = (marker, place_name, address_name, lat, lng) => {
   let content = ` 
   <div style="padding:25px;">
     ${place_name}<br>
     ${address_name} <br>
-    <button>등록</button>
+    <button onClick="onSubmit('${place_name}', '${address_name}', ${lat}, ${lng});">등록</button>
   </div>
   `;
 
@@ -45,7 +61,7 @@ const displayPlaces = (data) => {
   // 지도를 재설정할 범위정보를 가지고 있을 LatLngBounds 객체를 생성합니다
   let bounds = new daum.maps.LatLngBounds();
 
-  // 검색 리스트 초기화
+  // 검색리스트 초기화
   removeAllChildNodes(listEl);
   // marker 초기화
   removeMarker();
@@ -82,10 +98,6 @@ const displayPlaces = (data) => {
       displayInfowindow(marker, place_name, address_name, lat, lng);
     });
 
-    daum.maps.event.addListener(map, "click", function () {
-      infowindow.close();
-    });
-
     el.onclick = function () {
       displayInfowindow(marker, place_name, address_name, lat, lng);
     };
@@ -93,6 +105,9 @@ const displayPlaces = (data) => {
     listEl.appendChild(el);
   }
 
+  daum.maps.event.addListener(map, "click", function () {
+    infowindow.close();
+  });
   map.setBounds(bounds);
 };
 
